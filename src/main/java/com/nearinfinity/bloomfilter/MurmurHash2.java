@@ -27,7 +27,7 @@ package com.nearinfinity.bloomfilter;
  * Andrzej Bialecki (ab at getopt org).
  * </p>
  */
-public class MurmurHash {
+public class MurmurHash2 {
 	public static int hash(int seed, byte[] data, int offset, int length) {
 		if (offset == 0) {
 			return hash(seed,data,length);

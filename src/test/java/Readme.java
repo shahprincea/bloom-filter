@@ -16,6 +16,7 @@ public class Readme {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
 
         BloomFilter<String> bloomFilter = new BloomFilter<String>(0.001, 100, new ToBytes<String>() {
+
             private static final long serialVersionUID = -2257818636984044019L;
             @Override
             public byte[] toBytes(String key) {

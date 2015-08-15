@@ -18,11 +18,11 @@
 
 package com.nearinfinity.bloomfilter;
 
-import java.io.Serializable;
-
 import com.nearinfinity.bloomfilter.bitset.BloomFilterBitSet;
 import com.nearinfinity.bloomfilter.bitset.ThreadSafeBitSet;
 import com.nearinfinity.bloomfilter.bitset.ThreadUnsafeBitSet;
+
+import java.io.Serializable;
 
 
 /**
@@ -61,7 +61,6 @@ public class BloomFilter<T> extends BloomFilterFormulas implements Serializable 
 	/**
 	 * Creates a bloom filter with the provided number of hashed and hits.
 	 * @param probabilityOfFalsePositives  the probability of false positives for the given number of elements.
-	 * @param numberOfBits the numberOfBits to be used in the bit set.
 	 * @param threadSafe indicates whether the underlying bit set has to be thread safe or not.
 	 */
 	public BloomFilter(double probabilityOfFalsePositives, long elementSize, ToBytes<T> toBytes, boolean threadSafe) {
@@ -82,7 +81,6 @@ public class BloomFilter<T> extends BloomFilterFormulas implements Serializable 
 	/**
 	 * Creates a thread safe bloom filter with the provided number of hashed and hits.
 	 * @param probabilityOfFalsePositives  the probability of false positives for the given number of elements.
-	 * @param numberOfBits the numberOfBits to be used in the bit set.
 	 */
 	public BloomFilter(double probabilityOfFalsePositives, long elementSize, ToBytes<T> toBytes) {
 		this(probabilityOfFalsePositives,elementSize,toBytes,true);
@@ -114,7 +112,7 @@ public class BloomFilter<T> extends BloomFilterFormulas implements Serializable 
 	public void addBytes(byte[] key, int offset, int length) {
 		byte[] bs = key;
 		for (int i = 0; i < hashes; i++) {
-			int hash = MurmurHash.hash(seed, bs, offset, length);
+			int hash = MurmurHash3.murmurhash3_x86_32(bs,offset,length,seed);
 			setBitSet(hash);
 			bs[0]++;
 		}
@@ -129,7 +127,7 @@ public class BloomFilter<T> extends BloomFilterFormulas implements Serializable 
 	public boolean testBytes(byte[] key, int offset, int length) {
 		byte[] bs = key;
 		for (int i = 0; i < hashes; i++) {
-			int hash = MurmurHash.hash(seed, bs, offset, length);
+			int hash = MurmurHash3.murmurhash3_x86_32(bs, offset, length, seed);
 			if (!testBitSet(hash)) {
 				bs[0] -= i; //reset to original value
 				return false;
@@ -156,7 +154,7 @@ public class BloomFilter<T> extends BloomFilterFormulas implements Serializable 
 	private boolean testInternal(byte[] key) {
 		byte[] bs = key;
 		for (int i = 0; i < hashes; i++) {
-			int hash = MurmurHash.hash(seed, bs, bs.length);
+			int hash = MurmurHash3.murmurhash3_x86_32(bs, 0, bs.length, seed);
 			if (!testBitSet(hash)) {
 				bs[0] -= i; //reset to original value
 				return false;
@@ -174,7 +172,7 @@ public class BloomFilter<T> extends BloomFilterFormulas implements Serializable 
 	private void addInternal(byte[] key) {
 		byte[] bs = key;
 		for (int i = 0; i < hashes; i++) {
-			int hash = MurmurHash.hash(seed, bs, bs.length);
+			int hash = MurmurHash3.murmurhash3_x86_32(bs, 0, bs.length, seed);
 			setBitSet(hash);
 			bs[0]++;
 		}
